@@ -6,7 +6,7 @@ def get_data():
 	return {
 		"Fixed Asset Depreciation": {
 			"color": "grey",
-			"icon": "octicon octicon-file-directory",
+			"icon": "icon-signal",
 			"type": "module",
 			"label": _("Fixed Asset Depreciation")
 		}

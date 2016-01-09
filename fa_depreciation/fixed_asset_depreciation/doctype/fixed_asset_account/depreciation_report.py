@@ -85,9 +85,9 @@ class Depreciation:
 
 
 	def get_purchase_cost_at_year_start(self,asset,dict_value):
-	        #if dict_value['depreciation_provided_till_last_year'] > 0:
-	        return abs(asset.gross_purchase_value)
-		#return 0
+	        if dict_value['depreciation_provided_till_last_year'] > 0:
+	        	return abs(asset.gross_purchase_value)
+		return 0
 	    
 
 	def run(self):
@@ -140,13 +140,14 @@ class Depreciation:
 
 
 	def get_depreciation_provided_on_purchases(self,asset):
-	    purchase_date = asset.purchase_date	    
-            if purchase_date>=self.financial_year_from and \
-	    	    purchase_date<=self.financial_year_to:
-	        days = get_date_difference_in_days(purchase_date, self.financial_year_to)
-	        return (asset.gross_purchase_value * asset.depreciation_rate / 100) * \
-				  (days / self.TOTAL_DAYS_IN_YEAR)
-	    return 0
+		purchase_date = asset.purchase_date	    
+		if purchase_date>=self.financial_year_from and purchase_date<=self.financial_year_to:
+			if self.depreciation_method!="Straight Line":
+				days = get_date_difference_in_days(purchase_date, self.financial_year_to)
+				return (asset.gross_purchase_value * asset.depreciation_rate / 100) * (days / self.TOTAL_DAYS_IN_YEAR)
+			else:
+				return (asset.gross_purchase_value * asset.depreciation_rate) / 100
+		return 0
 
 
 	def get_sales_data(self,asset):
