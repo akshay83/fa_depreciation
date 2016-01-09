@@ -1,0 +1,18 @@
+include MANIFEST.in
+include requirements.txt
+include *.json
+include *.md
+include *.py
+include *.txt
+recursive-include fa_depreciation *.css
+recursive-include fa_depreciation *.csv
+recursive-include fa_depreciation *.html
+recursive-include fa_depreciation *.ico
+recursive-include fa_depreciation *.js
+recursive-include fa_depreciation *.json
+recursive-include fa_depreciation *.md
+recursive-include fa_depreciation *.png
+recursive-include fa_depreciation *.py
+recursive-include fa_depreciation *.svg
+recursive-include fa_depreciation *.txt
+recursive-exclude fa_depreciation *.pyc
