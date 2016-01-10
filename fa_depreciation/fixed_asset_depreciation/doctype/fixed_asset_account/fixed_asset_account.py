@@ -3,20 +3,31 @@
 
 from __future__ import unicode_literals
 import frappe
+from frappe.utils import cint
 from frappe.model.document import Document
 
 class FixedAssetAccount(Document):
+	def on_trash(self):
+		if self.journal_ref:
+			jv = frappe.get_doc("Journal Entry", self.journal_ref)
+			jv.cancel()
+
 	def validate(self):
+		if ((not cint(self.new_purchase)) and (not self.depreciation)):
+			frappe.throw("Pls Input Total Depreciation Provided Till Last Fiscal Year")
+
 		for totaldepr in self.depreciation:
 			count = 0
 			for totaldepr_entries in self.depreciation:
 				if totaldepr.fiscal_year == totaldepr_entries.fiscal_year:
 					count = count + 1;
 					if count >= 2:
-						raise frappe.ValidationError, \
-					"Looks like Fiscal Year for Fixed Assets is Already Closed"
+						frappe.throw("Looks like Fiscal Year for Fixed Assets is Already Closed")
 
 	def post_journal_entry(self):
+		if self.journal_ref:
+			frappe.throw("Journal Entry Already Posted: %s",self.journal_ref)
+
 		if self.new_purchase == 1:
 			return self.journal_entry_purchase()
 
@@ -41,7 +52,11 @@ class FixedAssetAccount(Document):
 		td2.set('credit_in_account_currency', self.gross_purchase_value)
 		td2.set('is_advance', 'No')
 
-		return jv.insert()
+		jv.insert()
+		jv.submit()
+		self.journal_ref = jv.name
+		self.save()
+		return jv
 
 @frappe.whitelist()
 def get_purchase_cost(account):

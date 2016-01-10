@@ -483,4 +483,4 @@ def get_written_down_when_selling_fixed_asset(fixed_asset, saledate, company, sa
 	value = depreciation.calculate_written_down_on(saledate, saleamount)
 	if value > 0:
 		return value
-	raise frappe.ValidationError, "Either Asset Already Sold OR No Record Found"
+	frappe.throw("Either Asset Already Sold OR No Record Found OR Trying to sell an Asset which was bought in the current Fiscal Year")

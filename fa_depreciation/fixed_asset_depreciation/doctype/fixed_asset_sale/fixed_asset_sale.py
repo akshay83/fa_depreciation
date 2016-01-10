@@ -6,7 +6,27 @@ import frappe
 from frappe.model.document import Document
 
 class FixedAssetSale(Document):
+	def on_trash(self):
+		self.cancel_delete()
+
+	def on_cancel(self):
+		self.cancel_delete()
+
+	def cancel_delete(self):
+		if self.journal_ref:
+			jv = frappe.get_doc("Journal Entry", self.journal_ref)
+			jv.cancel()
+		fa = frappe.get_doc("Fixed Asset Account", self.fixed_asset_account)
+		fa.is_sold = 0
+		fa.save()
+
 	def post_journal_entry(self):
+		if self.journal_ref:
+			frappe.throw("Journal Entry Already Posted: %s", self.journal_ref)
+
+		return self.journal_entry()
+
+	def journal_entry(self):
 		from fa_depreciation.fixed_asset_depreciation.doctype.fixed_asset_account.fixed_asset_account import validate_default_accounts
 		validate_default_accounts(self.company)
 		jv = frappe.new_doc('Journal Entry')
@@ -42,7 +62,11 @@ class FixedAssetSale(Document):
 			td4.set('credit_in_account_currency', float(self.difference))
 
 
-		return jv.insert()
+		jv.insert()
+		jv.submit()
+		self.journal_ref = jv.name
+		self.db_update()
+		return jv
 
 	def validate(self):
 		fa = frappe.get_doc("Fixed Asset Account", self.fixed_asset_account)
