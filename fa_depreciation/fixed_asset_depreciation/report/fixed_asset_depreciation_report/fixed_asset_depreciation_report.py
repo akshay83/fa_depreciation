@@ -12,6 +12,6 @@ def execute(filters=None):
     finyrfrom, finyrto = get_fiscal_year(fiscal_year = filters["fiscal_year"])[1:]
     data = get_report_data(financial_year_from = str(finyrfrom), \
 		financial_year_to = str(finyrto), company = filters["company"], expand_levels=filters.expand_levels)
-    columns = get_report_columns(financial_year_from = str(finyrfrom), financial_year_to = str(finyrto))
+    columns = get_report_columns(financial_year_from = finyrfrom, financial_year_to = finyrto)
 
     return columns, data

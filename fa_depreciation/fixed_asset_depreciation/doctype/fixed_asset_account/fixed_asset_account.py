@@ -13,6 +13,9 @@ class FixedAssetAccount(Document):
 			jv.cancel()
 
 	def validate(self):
+		if (cint(self.new_purchase) and self.depreciation):
+			frappe.throw("The Accumulated Depreciation Table Should be Empty")
+
 		if ((not cint(self.new_purchase)) and (not self.depreciation)):
 			frappe.throw("Pls Input Total Depreciation Provided Till Last Fiscal Year")
 

@@ -8,7 +8,7 @@ from frappe import _
 from datetime import date, timedelta
 from datetime import datetime
 from erpnext.accounts.utils import get_fiscal_year
-from frappe.utils import flt
+from frappe.utils import flt,formatdate
 
 def get_date_difference_in_days(d1, d2):
     return abs((d2 - d1).days)
@@ -306,8 +306,8 @@ class Depreciation:
 
 	def get_total_row(self, group_name):
 			return {
-				"fixed_asset_name": 'Sub Total',
-				"fixed_asset_account": group_name,
+				"fixed_asset_name": 'Total '+group_name,
+				"fixed_asset_account": " ",
 				"rate_of_depreciation": '',
 				"cost_as_on": self.group_total_year_start_purchase_cost,
 				"purchases": self.group_total_purchases_in_the_year,
@@ -381,17 +381,17 @@ def get_report_columns(financial_year_from, financial_year_to):
 			"fieldname": "fixed_asset_account",
 			"label": _("FIXED ASSET ACCOUNT"),
 			"fieldtype": "Data",
-			"width": 250
+			"width": 200
 		},
 		{
 			"fieldname": "rate_of_depreciation",
 			"label": _("RATE OF DEPRECIATION"),
 			"fieldtype": "Currency",
-			"width": 120
+			"width": 70
 		},
 		{
 			"fieldname": "cost_as_on",
-			"label": _("COST AS ON "+financial_year_from),
+			"label": _("COST AS ON "+formatdate(financial_year_from,"d MMM YYYY")),
 			"fieldtype": "Currency",
 			"width": 120
 		},
@@ -409,13 +409,13 @@ def get_report_columns(financial_year_from, financial_year_to):
 		},
 		{
 			"fieldname": "closing_cost",
-			"label": _("CLOSING COST "+financial_year_to),
+			"label": _("CLOSING COST AS ON "+formatdate(financial_year_to,"d MMM YYYY")),
 			"fieldtype": "Currency",
 			"width": 120
 		},
 		{
 			"fieldname": "opening_depreciation",
-			"label": _("DEPRECIATION AS ON"+financial_year_from),
+			"label": _("DEPRECIATION AS ON "+formatdate(financial_year_from,"d MMM YYYY")),
 			"fieldtype": "Currency",
 			"width": 120
 		},
@@ -445,19 +445,19 @@ def get_report_columns(financial_year_from, financial_year_to):
 		},
 		{
 			"fieldname": "total_accumulated_depreciation",
-			"label": _("TOTAL ACCUMULATED DEPRECIATION AS ON "+financial_year_to),
+			"label": _("TOTAL ACCUMULATED DEPRECIATION AS ON "+formatdate(financial_year_to,"d MMM YYYY")),
 			"fieldtype": "Currency",
 			"width": 120
 		},
 		{
 			"fieldname": "net_closing_value",
-			"label": _("NET ASSET VALUE "+financial_year_to),
+			"label": _("NET ASSET VALUE AS ON "+formatdate(financial_year_to,"d MMM YYYY")),
 			"fieldtype": "Currency",
 			"width": 120
 		},
 		{
 			"fieldname": "net_opening_value",
-			"label": _("NET ASSET VALUE "+financial_year_from),
+			"label": _("NET ASSET VALUE AS ON "+formatdate(financial_year_from,"d MMM YYYY")),
 			"fieldtype": "Currency",
 			"width": 120
 		}
