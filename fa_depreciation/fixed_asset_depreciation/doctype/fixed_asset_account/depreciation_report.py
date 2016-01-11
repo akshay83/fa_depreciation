@@ -19,6 +19,7 @@ class Depreciation:
 		self.financial_year_to = datetime.strptime(financial_year_to, "%Y-%m-%d").date()
 		self.day_before_start = self.financial_year_from - timedelta (days=1)    
 		self.TOTAL_DAYS_IN_YEAR = 365
+		self.PRECISION = 2
 		self.depreciation_method = frappe.get_doc("Company", company).default_depreciation_method
 		self.fixed_asset = fixed_asset
 		self.set_totals_to_zero()
@@ -97,24 +98,24 @@ class Depreciation:
 	    for assets in asset_query_result:
 		asset_value_dict = {}
 
-	        asset_value_dict['depreciation_provided_till_last_year'] = self.get_depreciation_provided_till_last_year(assets)
+	        asset_value_dict['depreciation_provided_till_last_year'] = flt(self.get_depreciation_provided_till_last_year(assets),self.PRECISION)
 
-	        asset_value_dict['purchase_cost_at_year_start']  = self.get_purchase_cost_at_year_start(assets, asset_value_dict)
+	        asset_value_dict['purchase_cost_at_year_start']  = flt(self.get_purchase_cost_at_year_start(assets, asset_value_dict),self.PRECISION)
 
-	        asset_value_dict['total_purchases_during_the_year'] = self.get_asset_purchases_in_the_year(assets)
+	        asset_value_dict['total_purchases_during_the_year'] = flt(self.get_asset_purchases_in_the_year(assets),self.PRECISION)
 
-	        asset_value_dict['total_sales_during_the_year'] = self.get_asset_sales_in_the_year(assets)
+	        asset_value_dict['total_sales_during_the_year'] = flt(self.get_asset_sales_in_the_year(assets),self.PRECISION)
 
 	        asset_value_dict['depreciation_provided_on_opening_purchase_cost'] = \
-			 self.get_depreciation_provided_on_opening_purchase_cost(assets, asset_value_dict)
+			 flt(self.get_depreciation_provided_on_opening_purchase_cost(assets, asset_value_dict),self.PRECISION)
 
 	        asset_value_dict['depreciation_provided_on_purchases'] = \
-			self.get_depreciation_provided_on_purchases(assets)
+			flt(self.get_depreciation_provided_on_purchases(assets),self.PRECISION)
 
-	        asset_value_dict['depreciation_written_back'] = self.get_depreciation_written_back(asset_value_dict)
+	        asset_value_dict['depreciation_written_back'] = flt(self.get_depreciation_written_back(asset_value_dict),self.PRECISION)
 
 		asset_value_dict['depreciation_provided_this_year'] = \
-			self.get_depreciation_provided_this_year(assets, asset_value_dict)
+			flt(self.get_depreciation_provided_this_year(assets, asset_value_dict),self.PRECISION)
 
 		self.do_depreciation_total(asset_value_dict)
 
@@ -344,20 +345,20 @@ class Depreciation:
 		        purchase_date = assets.purchase_date
 
 		        asset_value_dict['depreciation_provided_till_last_year'] =\
-			   self.get_depreciation_provided_till_last_year(assets)
+			   flt(self.get_depreciation_provided_till_last_year(assets),self.PRECISION)
 
 		        asset_value_dict['purchase_cost_at_year_start']  =\
-			   self.get_purchase_cost_at_year_start(assets,asset_value_dict)
+			   flt(self.get_purchase_cost_at_year_start(assets,asset_value_dict),self.PRECISION)
 
 		        factor = self.get_factor(asset_value_dict)
 
 	                days = get_date_difference_in_days(self.financial_year_from, saledate)
 	                asset_value_dict['depreciation_provided_on_opening_purchase_cost'] = \
-				((saleamount - (saleamount * factor)) *\
-				 assets.depreciation_rate / 100) * (days / self.TOTAL_DAYS_IN_YEAR)
+				flt(((saleamount - (saleamount * factor)) *\
+				 assets.depreciation_rate / 100) * (days / self.TOTAL_DAYS_IN_YEAR),self.PRECISION)
 		
 	                return flt((asset_value_dict['depreciation_provided_on_opening_purchase_cost'] +\
-				 asset_value_dict['depreciation_provided_till_last_year']),2)					
+				 asset_value_dict['depreciation_provided_till_last_year']),self.PRECISION)					
 
 		return -1
 

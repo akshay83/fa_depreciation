@@ -4,6 +4,7 @@
 from __future__ import unicode_literals
 import frappe
 from frappe.model.document import Document
+from frappe.utils import flt
 
 class FixedAssetSale(Document):
 	def on_trash(self):
@@ -27,6 +28,7 @@ class FixedAssetSale(Document):
 		return self.journal_entry()
 
 	def journal_entry(self):
+		self.PRECISION = 2
 		from fa_depreciation.fixed_asset_depreciation.doctype.fixed_asset_account.fixed_asset_account import validate_default_accounts
 		validate_default_accounts(self.company)
 		jv = frappe.new_doc('Journal Entry')
@@ -38,7 +40,7 @@ class FixedAssetSale(Document):
 
 		td1 = jv.append("accounts");		
 		td1.account = frappe.db.get_value("Fixed Asset Account", self.fixed_asset_account,"fixed_asset_account")
-		td1.set("credit_in_account_currency", float(self.asset_purchase_cost))
+		td1.set("credit_in_account_currency", flt(self.asset_purchase_cost,self.PRECISION))
 
 		td2 = jv.append("accounts")
 		from erpnext.accounts.party import get_party_account
@@ -46,20 +48,20 @@ class FixedAssetSale(Document):
 		td2.party = self.sold_to
 		td2.party_type = 'Customer'
 
-		td2.set('debit_in_account_currency', float(self.sales_amount))
+		td2.set('debit_in_account_currency', flt(self.sales_amount,self.PRECISION))
 
 		td5 = jv.append("accounts")
 		td5.account = frappe.get_doc("Company", self.company).default_accumulated_depreciation_account
-		td5.set('debit_in_account_currency', float(self.accumulated_depreciation))
+		td5.set('debit_in_account_currency', flt(self.accumulated_depreciation,self.PRECISION))
 
 		if self.profit_or_loss == "Loss":
 			td3 = jv.append("accounts")
 			td3.account = self.booking_account
-			td3.set('debit_in_account_currency', float(self.difference))
+			td3.set('debit_in_account_currency', flt(self.difference,self.PRECISION))
 		elif self.profit_or_loss == "Profit":
 			td4 = jv.append("accounts")
 			td4.account = self.booking_account
-			td4.set('credit_in_account_currency', float(self.difference))
+			td4.set('credit_in_account_currency', flt(self.difference,self.PRECISION))
 
 
 		jv.insert()
